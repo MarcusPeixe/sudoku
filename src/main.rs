@@ -112,7 +112,9 @@ impl Board {
             let i = i / 3;
             for j in 0..9 {
                 let color = {
-                    if pi == i || pj == j || (pi / 3 == i / 3 && pj / 3 == j / 3) {
+                    if pi == i && pj == j {
+                        "\x1b[48;5;240m"
+                    } else if pi == i || pj == j || (pi / 3 == i / 3 && pj / 3 == j / 3) {
                         "\x1b[48;5;238m"
                     } else if (i / 3 + j / 3) % 2 == 0 {
                         "\x1b[48;5;234m"
@@ -140,11 +142,24 @@ const DIGIT_PATTERNS: [[&str; 3]; 9] = [
     [" ▄▄▄▄▄ ", " █▄▄▄█ ", " ▄▄▄▄█ "],
 ];
 
-fn main() -> io::Result<()> {
+use clap::Parser;
+
+/// Sudoku game in terminal
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// Play on smaller board
+    #[arg(short, long)]
+    small: bool,
+}
+
+fn main() -> anyhow::Result<()> {
+    let _args = Args::parse();
+
     let (w, h) = terminal::size()?;
-    // if w < 27 || h < 27 {
-    //     return Err(io::Error::other("Terminal size must be at least 27x27"));
-    // }
+    if w < 27 || h < 27 {
+        anyhow::bail!("Terminal size must be at least 27x27");
+    }
 
     // enable_raw_mode()?;
 
@@ -168,7 +183,7 @@ fn main() -> io::Result<()> {
 
     board.set_cell(7, 7, Cell::new_with_mask(PencilMask(0b111111111)));
 
-    board.render(Some((5, 7)));
+    board.render(Some((4, 7)));
 
     // loop {
     //     let event = event::read()?;
