@@ -1,4 +1,4 @@
-use crossterm::style;
+use crossterm::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FgColor {
@@ -24,17 +24,21 @@ pub struct Palette {
 }
 
 impl Palette {
-    pub fn set_colors(&self, fg: FgColor, bg: BgColor) -> style::SetColors {
+    pub fn set_fg_color(&self, fg: FgColor) -> style::SetForegroundColor {
         let fg_color = match fg {
             FgColor::Fixed => self.fg_fixed,
             FgColor::Player => self.fg_player,
             FgColor::Conflicting => self.fg_conflicting,
             FgColor::Highlighted => self.fg_highlighted,
         };
+        style::SetForegroundColor(fg_color)
+    }
+
+    pub fn set_bg_color(&self, bg: BgColor) -> style::SetBackgroundColor {
         let bg_color = match bg {
             BgColor::Default => self.bg_default,
             BgColor::Highlighted => self.bg_highlighted,
         };
-        style::SetColors(style::Colors::new(fg_color, bg_color))
+        style::SetBackgroundColor(bg_color)
     }
 }
