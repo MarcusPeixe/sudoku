@@ -16,8 +16,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v5
-    - name: Installing toolchain
-      run: rustup toolchain install stable --profile minimal
     - uses: Swatinem/rust-cache@v2.9.1
     - name: Build
       run: cargo build --verbose
