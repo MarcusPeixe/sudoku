@@ -23,7 +23,7 @@ struct Args {
 
 fn main() -> anyhow::Result<()> {
     // TODO: select renderer based on `--small` flag
-    // let args = Args::parse();
+    let args = Args::parse();
 
     let palette = color::Palette {
         fg_fixed: style::Color::White,
