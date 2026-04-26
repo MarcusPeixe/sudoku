@@ -1,21 +1,17 @@
-use crossterm::{
-    cursor,
-    event::{self},
-    execute, terminal,
-};
+use crossterm::*;
 use std::io::Write;
 
 pub struct TtyCtx<'w, W: Write>(&'w mut W);
 
 impl<'w, W: Write> TtyCtx<'w, W> {
     pub fn init(out: &'w mut W) -> anyhow::Result<Self> {
+        terminal::enable_raw_mode()?;
         execute!(
             out,
             event::EnableMouseCapture,
             cursor::Hide,
             terminal::EnterAlternateScreen
         )?;
-        terminal::enable_raw_mode()?;
         Ok(Self(out))
     }
 
@@ -26,12 +22,6 @@ impl<'w, W: Write> TtyCtx<'w, W> {
 
 impl<'w, W: Write> Drop for TtyCtx<'w, W> {
     fn drop(&mut self) {
-        if let Err(e) = self.0.flush() {
-            eprintln!("Failed to flush output: {e}");
-        }
-        if let Err(e) = terminal::disable_raw_mode() {
-            eprintln!("Failed to disable raw mode: {e}");
-        }
         if let Err(e) = execute!(
             self.0,
             terminal::LeaveAlternateScreen,
@@ -39,6 +29,12 @@ impl<'w, W: Write> Drop for TtyCtx<'w, W> {
             event::DisableMouseCapture
         ) {
             eprintln!("Failed to restore terminal state: {e}");
+        }
+        if let Err(e) = terminal::disable_raw_mode() {
+            eprintln!("Failed to disable raw mode: {e}");
+        }
+        if let Err(e) = self.0.flush() {
+            eprintln!("Failed to flush output: {e}");
         }
     }
 }
